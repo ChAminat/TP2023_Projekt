@@ -32,8 +32,8 @@ def working_space(my_account):
                 if amount < 0:
                     print(f"amount should be upper than 0")
                     continue
-                my_account.withdraw(amount, acc_id)
-                print(f"OK")
+                a = my_account.withdraw(amount, acc_id)
+                if a: print(f"OK")
             else:
                 print("Sorry, an unavailable account number")
         elif command == "top_up":
