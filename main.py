@@ -30,7 +30,7 @@ def working_space(my_account):
 
             if acc_id in my_account.MuAccountList:
                 if amount < 0:
-                    print(f"amount should be upper than 0")
+                    print(f"Amount should be upper than 0")
                     continue
                 a = my_account.withdraw(amount, acc_id)
                 if a: print(f"OK")
@@ -42,23 +42,21 @@ def working_space(my_account):
 
             if acc_id in my_account.MuAccountList:
                 if amount < 0:
-                    print(f"amount should be upper than 0")
+                    print(f"Amount should be upper than 0")
                     continue
                 my_account.top_up(amount, acc_id)
-                print(f"Wow, you have money? ")
+                print(f"Your balance is replenished")
             else:
                 print("Sorry, an unavailable account number")
         elif command == "transfer":
             print("Please, enter some information")
-            while True:  # тут будет проверка на корректность ввода
-                amount = float(input("amount of money:"))
-                from_acc_id = int(input("from what account (id):"))
-                to_acc_id = int(input("to what account (id):"))
-                break
+            amount = float(input("amount of money:"))
+            from_acc_id = int(input("from what account (id):"))
+            to_acc_id = int(input("to what account (id):"))
 
             a = my_account.transfer(amount, from_acc_id, to_acc_id)
             if a:
-                print("OK")
+                print("Transfered")
             else:
                 print("Something went wrong, we will tell soon exactly")
         elif command == "close_account":
@@ -68,8 +66,6 @@ def working_space(my_account):
                 print(f"Now account {account_id} is dead")
             else:
                 print("Sorry, an unavailable account number")
-
-
 
 
 if __name__ == '__main__':  # будет возвожность войти в существующий аккаунт

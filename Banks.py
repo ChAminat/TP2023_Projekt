@@ -36,6 +36,7 @@ class Bank:
             return False
 
         a = self.__account[owner_acc_id].transfer(amount, self.__account[recip_acc_id])
+        print("a", a)
         if not a:
             return False
 
@@ -43,7 +44,7 @@ class Bank:
         details = [amount, owner_acc_id, recip_acc_id]
         sdate = date.today()
         self.__transactions[t_id] = Transaction(t_id, sdate, "transfer", details)
-        return
+        return True
 
     def make_top_up(self, amount, owner_acc_id):
         self.__account[owner_acc_id].top_up(amount)
