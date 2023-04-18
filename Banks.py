@@ -35,8 +35,8 @@ class Bank:
     def find_user(self, login, password):
         return self.__users.find(login, password)
 
-    def add_new_user(self, login, password):
-        return self.__users.add_new_user(login, password)
+    def add_new_user(self, login, password, sys_account):
+        return self.__users.add_new_user(login, password, sys_account)
 
     def make_transfer(self, amount, owner_acc_id, recip_acc_id, sys_acc_status):
         if not sys_acc_status and amount > self.limitations.trans_limit:

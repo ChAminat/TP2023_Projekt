@@ -32,14 +32,14 @@ class UserStorage:
 
   def find(self, login, password):
     if login in self.__users.keys():
-      if password == self.__users[login]:
-        return True
+      if password == self.__users[login][0]:
+        return self.__users[login][1]
       return 101
     return 102
 
-  def add_new_user(self, login, password):
+  def add_new_user(self, login, password, sys_account):
     if login in self.__users.keys():
       return 103
-    self.__users[login] = password
+    self.__users[login] = [password, sys_account]
     return True
       

@@ -83,7 +83,7 @@ class WorkingSpace:
 
     @staticmethod
     def get_mand_user_info(type):
-        print("Please, introduce yourself" if type == 0 else "Please, come up with a login and password")
+        print("Please, introduce yourself" if type == 0 else "Please, write your login and password")
         while True:
             name = input("name:" if type == 0 else "login:")
             surname = input("surname:" if type == 0 else "password:")
@@ -100,26 +100,51 @@ class WorkingSpace:
         return address, passport
     
     @staticmethod
-    def get_reg_bank_info(available_banks):
-        print("What bank would you like to be registered in?")
+    def get_reg_bank_info(available_banks, type):
+        print("What bank would you like to be " + ("registered in?" if type == 0 else "logged in?"))
         while True:
             bank_name = input("Bank:")
             if not bank_name.lower() in available_banks:
                 print("Sorry, this Bank is unavailable.")
             else:
-                return bank_name.lower()      
+                return bank_name.lower() 
+
+    @staticmethod
+    def registration_system(available_banks):
+        name, surname = WorkingSpace.get_mand_user_info(0)
+        address, passport = WorkingSpace.get_add_user_info()
+        client = Client(name, surname, address, passport)
+        bank_name = WorkingSpace.get_reg_bank_info(available_banks, 0)
+        login, password = WorkingSpace.get_mand_user_info(1)
+        my_account = SystemAccount(client, available_banks[bank_name], login, password)
+        available_banks[bank_name].add_new_user(login, password, my_account)
+        print(f"Congratulations, you are registered in {bank_name}!")
+        return my_account
+
+    @staticmethod
+    def login_system(available_banks):
+        bank_name = WorkingSpace.get_reg_bank_info(available_banks, 1)
+        login, password = WorkingSpace.get_mand_user_info(1)
+        my_account = available_banks[bank_name].find_user(login, password)
+        return my_account
+
 
     @staticmethod
     def run():
         available_banks = {"sber": Sber}
         while True:
-            name, surname = WorkingSpace.get_mand_user_info(0)
-            address, passport = WorkingSpace.get_add_user_info()
-            client = Client(name, surname, address, passport)
-            bank_name = WorkingSpace.get_reg_bank_info(available_banks)
-            login, password = WorkingSpace.get_mand_user_info(1)
-            available_banks[bank_name].add_new_user(login, password)
-            my_account = SystemAccount(client, available_banks[bank_name], login, password)
-            print(f"Congratulations, you are registered in {bank_name}!")
-            WorkingSpace.working_space(my_account)
-            break
+            print("Do you want to log in or register?")
+            ans = input("Write 'log_in' or 'register': ")
+            if ans == "log_in":
+                my_account = WorkingSpace.login_system(available_banks)
+                if my_account in ex_code_dct.keys():
+                    print(ex_code_dct[my_account])
+                    continue
+                else:
+                    print("You have successfully logged in!")
+                    WorkingSpace.working_space(my_account)
+            elif ans == "register":
+                my_account = WorkingSpace.registration_system(available_banks)
+                WorkingSpace.working_space(my_account)
+            else:
+                print("Unavailable command")
