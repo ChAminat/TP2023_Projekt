@@ -1,0 +1,9 @@
+commands for console working:
+exit from working_space - exit
+show all my accounts - show_account
+create new account - create_account
+check balance of a concrete account- check_balance
+transfer - transfer
+top up - top_up
+withdraw - withdraw
+close account - close_account
