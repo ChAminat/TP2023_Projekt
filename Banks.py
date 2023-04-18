@@ -23,14 +23,13 @@ class BankLimitations:
 
 
 class Bank:
-    __accounts = AccountStorage()
-    __transactions = TransactionStorage()
-    __users = UserStorage()
-
     def __init__(self, name, address, **limits):
         self.name = name
         self.address = address
         self.limitations = BankLimitations(**limits)
+        self.__accounts = AccountStorage(self.name)
+        self.__transactions = TransactionStorage(self.name)
+        self.__users = UserStorage(self.name)
     
     def find_user(self, login, password):
         return self.__users.find(login, password)
@@ -73,7 +72,7 @@ class Bank:
         if acc_to == None:
             return 404 # non-existent account id
         operation = acc_to.withdraw(amount)
-        if operation in ex_code_dct.keys(): #поставить сравнение с кодом исключения
+        if operation in ex_code_dct.keys():
             return operation
         
         t_id = uuid.uuid4().int

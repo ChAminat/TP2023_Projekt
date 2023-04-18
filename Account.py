@@ -70,7 +70,7 @@ class Credit(Account):
 
     def transfer(self, amount, to_account):
         operation = self.withdraw(amount)
-        if not operation in ex_code_dct.keys(): #проверить на код ошибки
+        if not operation in ex_code_dct.keys():
             to_account.balance += amount
             return True
         return operation
