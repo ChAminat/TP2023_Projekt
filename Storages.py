@@ -26,3 +26,20 @@ class TransactionStorage:
   
   def cancel(self, trans_id):
     pass
+
+class UserStorage:
+  __users = {}
+
+  def find(self, login, password):
+    if login in self.__users.keys():
+      if password == self.__users[login]:
+        return True
+      return 101
+    return 102
+
+  def add_new_user(self, login, password):
+    if login in self.__users.keys():
+      return 103
+    self.__users[login] = password
+    return True
+      
