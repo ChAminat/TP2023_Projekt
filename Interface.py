@@ -1,30 +1,32 @@
 from SystemAccount import Client, SystemAccount
 from Banks import Sber
+
+
 class WorkingSpace:
     @staticmethod
-    def working_space(my_account):
-        command = ""
+    def working_space(my_account, command, ans=""):
         while command != "exit":
-            command = input("What do you what to do next?")
             if command == "show_account":
                 lst = my_account.MyAccountList
                 if not lst:
                     print("You have no accounts yet")
                 for i in lst:
                     print(f"id: {i}    type: {lst[i].ac_type}    balance: {lst[i].balance}")
+
             elif command == "create_account":
-                ac_type = input("Select the account type: debit, credit, deposit").lower()
+                ac_type = ans
                 start_sum = 0
-                if ac_type == "credit":
-                    start_sum = float(input("Enter start size of credit"))
+                if ac_type[:7] == "credit ":
+                    start_sum = float(ans[7:])
                 new_id = my_account.open_new_account(ac_type, start_sum)
-                print(f"New {ac_type} account {new_id} created")
+                return new_id
+                #print(f"New {ac_type} account {new_id} created")
             elif command == "check_balance":
-                ac_id = int(input("Your account number: "))
+                ac_id = ans
                 if ac_id in my_account.MyAccountList:
-                    print(my_account.balance(ac_id))
+                    return my_account.balance(ac_id)
                 else:
-                    print("Sorry, an unavailable account number")
+                    return "error"
             elif command == "withdraw":
                 amount = float(input("enter the amount of money: "))
                 acc_id = int(input("enter the account id: "))
@@ -68,32 +70,45 @@ class WorkingSpace:
                 else:
                     print("Sorry, an unavailable account number")
 
-    @staticmethod
-
-    def run():
-        available_banks = {"sber": Sber}
+    """@staticmethod
+    def get_mand_user_info(name, surname):
         while True:
-            print("Please, introduce yourself")
-            while True:
-                name = input("name:")
-                surname = input("surname:")
-                if name.split() and surname.split():
-                    break
-                else:
-                    print("All fields must be filled in!")
-            print("Please, enter the following data or skip by pressing Enter")
-            address = input("address:")
-            passport = input("passport:")
-            client = Client(name, surname, address, passport)
+            name = name
+            surname = surname
+            if name.split() and surname.split():
+                return name, surname
+            else:
+                print("All fields must be filled in!")
 
-            print("What bank you would like to be registered in?")
-            while True:
-                bank_name = input("Bank:")
-                if not bank_name.lower() in available_banks:
-                    print("Sorry, this Bank is unavailable.")
-                else:
-                    break
-            my_account = SystemAccount(client, available_banks[bank_name.lower()], "1111")
-            print(f"Congratulations, you are registered in {bank_name}!")
-            WorkingSpace.working_space(my_account)
-            break
+    @staticmethod
+    def get_add_user_info(address="", passport=""):
+        address = input("address:")
+        passport = input("passport:")
+        return address, passport
+    """
+    @staticmethod
+    def get_reg_bank_info(available_banks, bank):
+        print("What bank would you like to be registered in?")
+        while True:
+            bank_name = bank
+            if not bank_name.lower() in available_banks:
+                print("Sorry, this Bank is unavailable.")
+            else:
+                return bank_name.lower()
+
+    @staticmethod
+    def user_registration(name, surname, address, passport):
+        while True:
+            client = Client(name, surname, address, passport)
+            return client
+
+    @staticmethod
+    def runRegestration(client, bank_name):
+        available_banks = {"sber": Sber}
+        my_account = SystemAccount(client, available_banks[bank_name], "1111")
+        print(f"Congratulations, you are registered in {bank_name}!")
+        return my_account
+
+    @staticmethod
+    def optionalBank(my_account, command, ans=""):
+        WorkingSpace.working_space(my_account, command, ans)

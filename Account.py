@@ -1,5 +1,6 @@
 from datetime import date
 
+
 class Account:
     balance = 0.0
 
@@ -12,20 +13,19 @@ class Account:
         if self.balance >= amount:
             self.balance -= amount
             return True
-        print("Невозможно снять деньги")
-        return False
+        return False # insufficient funds to withdraw
 
     def transfer(self, amount, recip_acc):
         a = self.withdraw(amount)
         if a:
             recip_acc.balance += amount
             return True
-        return False
+        return False # insufficient funds for the transfer
 
     def top_up(self, amount):
         self.balance += amount
 
-    def close(self):  # разные типы закрытия
+    def close(self):
         self.balance = 0.0
         self.account_id = None
 
@@ -43,18 +43,14 @@ class Deposit(Account):
     def withdraw(self, amount):
         now_date = date.today()
         if now_date < self.sdate + self.validity_period:
-            print("validity_period is not finished")
-            return False
-        super().withdraw(amount)
-        return True
+            return False  # validity_period is not finished
+        return super().withdraw(amount)
 
     def transfer(self, amount, recip_acc):
         now_date = date.today()
         if now_date < self.sdate + self.validity_period:
-            print("validity_period is not finished")
-            return False
-        super().transfer(amount, recip_acc)
-        return True
+            return False  # validity_period is not finished
+        return super().transfer(amount, recip_acc)
 
 
 class Credit(Account):
@@ -68,16 +64,15 @@ class Credit(Account):
         com = self.commission if self.balance < 0 else 0
         if abs(self.balance - amount - com) <= self.limit:
             self.balance -= amount + com
-            return
-        print("Невозможно снять деньги")
-        return False
+            return True
+        return False #withdrawal limit exceeded
 
     def transfer(self, amount, to_account):  # было достаточно средств для снятия
-        a = self.withdraw(amount)
-        if a:
+        operation = self.withdraw(amount)
+        if operation: #проверить на код ошибки
             to_account.balance += amount
             return True
-        return False
+        return operation
 
 
 class Debit(Account):
