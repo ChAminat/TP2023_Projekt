@@ -1,11 +1,13 @@
 from SystemAccount import Client, SystemAccount
 from Banks import Sber
+
+
 class WorkingSpace:
     @staticmethod
     def working_space(my_account):
         command = ""
         while command != "exit":
-            command = input("What do you what to do next?")
+            command = input("What do you want to do next?")
             if command == "show_account":
                 lst = my_account.MyAccountList
                 if not lst:
@@ -69,31 +71,43 @@ class WorkingSpace:
                     print("Sorry, an unavailable account number")
 
     @staticmethod
+    def get_mand_user_info():
+        print("Please, introduce yourself")
+        while True:
+            name = input("name:")
+            surname = input("surname:")
+            if name.split() and surname.split():
+                return name, surname
+            else:
+                print("All fields must be filled in!")
 
+    @staticmethod
+    def get_add_user_info():
+        print("Please, enter the following data or skip by pressing Enter")
+        address = input("address:")
+        passport = input("passport:")
+        return address, passport
+    
+    @staticmethod
+    def get_reg_bank_info(available_banks):
+        print("What bank would you like to be registered in?")
+        while True:
+            bank_name = input("Bank:")
+            if not bank_name.lower() in available_banks:
+                print("Sorry, this Bank is unavailable.")
+            else:
+                return bank_name.lower()      
+
+    @staticmethod
     def run():
         available_banks = {"sber": Sber}
         while True:
-            print("Please, introduce yourself")
-            while True:
-                name = input("name:")
-                surname = input("surname:")
-                if name.split() and surname.split():
-                    break
-                else:
-                    print("All fields must be filled in!")
-            print("Please, enter the following data or skip by pressing Enter")
-            address = input("address:")
-            passport = input("passport:")
+            name, surname = WorkingSpace.get_mand_user_info()
+            address, passport = WorkingSpace.get_add_user_info()
             client = Client(name, surname, address, passport)
 
-            print("What bank you would like to be registered in?")
-            while True:
-                bank_name = input("Bank:")
-                if not bank_name.lower() in available_banks:
-                    print("Sorry, this Bank is unavailable.")
-                else:
-                    break
-            my_account = SystemAccount(client, available_banks[bank_name.lower()], "1111")
+            bank_name = WorkingSpace.get_reg_bank_info()
+            my_account = SystemAccount(client, available_banks[bank_name], "1111")
             print(f"Congratulations, you are registered in {bank_name}!")
             WorkingSpace.working_space(my_account)
             break

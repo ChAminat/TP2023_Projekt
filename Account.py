@@ -13,14 +13,14 @@ class Account:
         if self.balance >= amount:
             self.balance -= amount
             return True
-        return False
+        return False # insufficient funds to withdraw
 
     def transfer(self, amount, recip_acc):
         a = self.withdraw(amount)
         if a:
             recip_acc.balance += amount
             return True
-        return False
+        return False # insufficient funds for the transfer
 
     def top_up(self, amount):
         self.balance += amount
@@ -44,15 +44,13 @@ class Deposit(Account):
         now_date = date.today()
         if now_date < self.sdate + self.validity_period:
             return False  # validity_period is not finished
-        super().withdraw(amount)
-        return True
+        return super().withdraw(amount)
 
     def transfer(self, amount, recip_acc):
         now_date = date.today()
         if now_date < self.sdate + self.validity_period:
             return False  # validity_period is not finished
-        super().transfer(amount, recip_acc)
-        return True
+        return super().transfer(amount, recip_acc)
 
 
 class Credit(Account):
@@ -67,14 +65,14 @@ class Credit(Account):
         if abs(self.balance - amount - com) <= self.limit:
             self.balance -= amount + com
             return True
-        return False #Невозможно снять деньги
+        return False #withdrawal limit exceeded
 
     def transfer(self, amount, to_account):  # было достаточно средств для снятия
-        a = self.withdraw(amount)
-        if a:
+        operation = self.withdraw(amount)
+        if operation: #проверить на код ошибки
             to_account.balance += amount
             return True
-        return False
+        return operation
 
 
 class Debit(Account):

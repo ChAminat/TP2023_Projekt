@@ -32,14 +32,14 @@ class Bank:
 
     def make_transfer(self, amount, owner_acc_id, recip_acc_id, sys_acc_status):
         if not sys_acc_status and amount > self.limitations.trans_limit:
-            return False #return exit code 424 - ограничения по переводам
+            return False #limited account. transfer limit exceeded
         acc_from = self.__accounts.find(owner_acc_id)
         acc_to = self.__accounts.find(recip_acc_id)
         if acc_from == None or acc_to == None:
-            return False #return exit code 404 не сущ акк
+            return False #non-existent account id
         operation = acc_from.transfer(amount, acc_to)
-        if not operation:
-            return False #return exit code 504 проблема с операцией
+        if not operation: #поставить сравнение с кодом исключения
+            return operation
 
         t_id = uuid.uuid4().int
         details = {"amount": amount, "owner_acc_id": owner_acc_id, "recip_acc_id": recip_acc_id}
@@ -50,7 +50,7 @@ class Bank:
     def make_top_up(self, amount, owner_acc_id):
         acc_to = self.__accounts.find(owner_acc_id)
         if acc_to == None:
-            return False
+            return False # non-existent account id
         acc_to.top_up(amount)
         t_id = uuid.uuid4().int
         details = {"amount": amount, "owner_acc_id": owner_acc_id}
@@ -60,13 +60,13 @@ class Bank:
 
     def make_withdraw(self, amount, owner_acc_id, acc_status):
         if not acc_status and amount > self.limitations.withdraw_limit:
-            return False
+            return False # limited account. withdraw limit exceeded
         acc_to = self.__accounts.find(owner_acc_id)
         if acc_to == None:
-            return False
+            return False # non-existent account id
         operation = acc_to.withdraw(amount)
-        if not operation:
-            return False
+        if not operation: #поставить сравнение с кодом исключения
+            return operation
         
         t_id = uuid.uuid4().int
         details = {"amount": amount, "owner_acc_id": owner_acc_id}

@@ -14,12 +14,16 @@ class UserInfo:
 
     def userName(self):
         return self.client.user_name
+    
     def userSurname(self):
         return self.client.user_surname
+    
     def userAddress(self):
         return self.client.address
+    
     def userPassport(self):
         return self.client.passport
+    
     def check_status(self):
         if self.client.address.split() and self.client.passport.split():
             return True
@@ -43,7 +47,7 @@ class SystemAccount:
     def check_password(self, password):
         if password == self.__password:
             return True
-        return False
+        return False #your password is incorrect
 
     def open_new_account(self, t_type, start_sum=0):
         new_acc = self.bank.create_account(self, t_type, start_sum)
@@ -58,10 +62,10 @@ class SystemAccount:
         return self.bank.make_transfer(amount, from_acc_id, to_acc_id, self.user.check_status())
 
     def top_up(self, amount, acc_id):
-        self.bank.make_top_up(amount, acc_id)
+        return self.bank.make_top_up(amount, acc_id)
 
     def withdraw(self, amount, acc_id):
-        self.bank.make_withdraw(amount, acc_id, self.user.check_status())
+        return self.bank.make_withdraw(amount, acc_id, self.user.check_status())
 
     def balance(self, acc_id):
         return self.MyAccountList[acc_id].check_balance()
