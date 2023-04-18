@@ -1,5 +1,5 @@
-from Account import *
-from Storages import *
+from Account import Debit, Credit, Deposit
+from Storages import AccountStorage, UserStorage, TransactionStorage
 from datetime import date
 import uuid
 from ex_info import ex_code_dct
