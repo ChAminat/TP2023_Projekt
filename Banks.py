@@ -1,7 +1,8 @@
-from Account import *
-from Storages import *
+from Account import Debit, Credit, Deposit
+from Storages import AccountStorage, UserStorage, TransactionStorage
 from datetime import date
 import uuid
+from ex_info import ex_code_dct
 
 
 class Transaction:
@@ -22,23 +23,29 @@ class BankLimitations:
 
 
 class Bank:
-    __accounts = AccountStorage()
-    __transactions = TransactionStorage()
-
     def __init__(self, name, address, **limits):
         self.name = name
         self.address = address
         self.limitations = BankLimitations(**limits)
+        self.__accounts = AccountStorage(self.name)
+        self.__transactions = TransactionStorage(self.name)
+        self.__users = UserStorage(self.name)
+
+    def find_user(self, login, password):
+        return self.__users.find(login, password)
+
+    def add_new_user(self, login, password, sys_account):
+        return self.__users.add_new_user(login, password, sys_account)
 
     def make_transfer(self, amount, owner_acc_id, recip_acc_id, sys_acc_status):
         if not sys_acc_status and amount > self.limitations.trans_limit:
-            return False  # limited account. transfer limit exceeded
+            return 413  # limited account. transfer limit exceeded
         acc_from = self.__accounts.find(owner_acc_id)
         acc_to = self.__accounts.find(recip_acc_id)
         if acc_from == None or acc_to == None:
-            return False  # non-existent account id
+            return 404  # non-existent account id
         operation = acc_from.transfer(amount, acc_to)
-        if not operation:  # поставить сравнение с кодом исключения
+        if operation in ex_code_dct.keys():  # поставить сравнение с кодом исключения
             return operation
 
         t_id = uuid.uuid4().int
@@ -50,7 +57,7 @@ class Bank:
     def make_top_up(self, amount, owner_acc_id):
         acc_to = self.__accounts.find(owner_acc_id)
         if acc_to == None:
-            return False  # non-existent account id
+            return 404  # non-existent account id
         acc_to.top_up(amount)
         t_id = uuid.uuid4().int
         details = {"amount": amount, "owner_acc_id": owner_acc_id}
@@ -60,12 +67,12 @@ class Bank:
 
     def make_withdraw(self, amount, owner_acc_id, acc_status):
         if not acc_status and amount > self.limitations.withdraw_limit:
-            return False  # limited account. withdraw limit exceeded
+            return 413  # limited account. withdraw limit exceeded
         acc_to = self.__accounts.find(owner_acc_id)
         if acc_to == None:
-            return False  # non-existent account id
+            return 404  # non-existent account id
         operation = acc_to.withdraw(amount)
-        if not operation:  # поставить сравнение с кодом исключения
+        if operation in ex_code_dct.keys():
             return operation
 
         t_id = uuid.uuid4().int

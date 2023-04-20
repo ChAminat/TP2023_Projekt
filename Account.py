@@ -1,4 +1,5 @@
 from datetime import date
+from ex_info import ex_code_dct
 
 
 class Account:
@@ -13,14 +14,14 @@ class Account:
         if self.balance >= amount:
             self.balance -= amount
             return True
-        return False # insufficient funds to withdraw
+        return 301 # insufficient funds to withdraw
 
     def transfer(self, amount, recip_acc):
         a = self.withdraw(amount)
         if a:
             recip_acc.balance += amount
             return True
-        return False # insufficient funds for the transfer
+        return 301 # insufficient funds for the transfer
 
     def top_up(self, amount):
         self.balance += amount
@@ -43,13 +44,13 @@ class Deposit(Account):
     def withdraw(self, amount):
         now_date = date.today()
         if now_date < self.sdate + self.validity_period:
-            return False  # validity_period is not finished
+            return 311  # validity_period is not finished
         return super().withdraw(amount)
 
     def transfer(self, amount, recip_acc):
         now_date = date.today()
         if now_date < self.sdate + self.validity_period:
-            return False  # validity_period is not finished
+            return 311  # validity_period is not finished
         return super().transfer(amount, recip_acc)
 
 
@@ -65,11 +66,11 @@ class Credit(Account):
         if abs(self.balance - amount - com) <= self.limit:
             self.balance -= amount + com
             return True
-        return False #withdrawal limit exceeded
+        return 312 #withdrawal limit exceeded
 
-    def transfer(self, amount, to_account):  # было достаточно средств для снятия
+    def transfer(self, amount, to_account):
         operation = self.withdraw(amount)
-        if operation: #проверить на код ошибки
+        if not operation in ex_code_dct.keys():
             to_account.balance += amount
             return True
         return operation
