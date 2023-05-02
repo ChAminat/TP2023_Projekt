@@ -1,6 +1,6 @@
 from SystemAccount import Client, SystemAccount
 from Banks import Sber
-from ex_info import ex_code_dct
+from ex_info import EX_CODE_MESSAGES, ACCOUNT_NUMBER_ERROR, ZERO_OPERATION_ERROR, INCORRECT_ACCOUNT_TYPE_ERROR
 
 class WorkingSpace:
     @staticmethod
@@ -15,7 +15,7 @@ class WorkingSpace:
     def create_account(my_account, acc_type, sum=""):
         ac_type = acc_type
         if not ac_type in ["debit", "credit", "deposit"]:
-            return (113)
+            return (INCORRECT_ACCOUNT_TYPE_ERROR)
         start_sum = 0
         if ac_type == "credit":
             start_sum = float(sum)
@@ -27,20 +27,20 @@ class WorkingSpace:
         try:
             ac_id = int(id)
         except Exception:
-            return (111)
+            return (ACCOUNT_NUMBER_ERROR)
         if ac_id in my_account.MyAccountList:
             return (my_account.balance(ac_id))
-        return (111)
+        return (ACCOUNT_NUMBER_ERROR)
 
     @staticmethod
     def stonks(my_account, type, sum, id):
         amount = float(sum)
         acc_id = int(id)
         if acc_id in my_account.MyAccountList:
-            if amount < 0: return (112)
+            if amount < 0: return (ZERO_OPERATION_ERROR)
             operation = my_account.withdraw(amount, acc_id) if type == "withdraw" else my_account.top_up(amount, acc_id)
             return (operation)
-        return (111)
+        return (ACCOUNT_NUMBER_ERROR)
 
     @staticmethod
     def transfer(my_account, sum, acc_id, to_acc):
@@ -57,7 +57,7 @@ class WorkingSpace:
         if account_id in my_account.MyAccountList:
             my_account.close_account(account_id)
             return (f"Now account {account_id} is dead")
-        return (111)
+        return (ACCOUNT_NUMBER_ERROR)
 
     @staticmethod
     def working_space(my_account, command, account_id="", to_account_id="",
@@ -93,7 +93,7 @@ class WorkingSpace:
             elif command == "close_account":
                 ex_code = WorkingSpace.close_account(my_account=my_account,
                                                      id=account_id)
-            return ex_code if not ex_code in ex_code_dct.keys() else ex_code_dct[ex_code]
+            return ex_code if not ex_code in EX_CODE_MESSAGES.keys() else EX_CODE_MESSAGES[ex_code]
 
     @staticmethod
     def get_mand_user_info(type, user_info):
@@ -142,7 +142,26 @@ class WorkingSpace:
         my_account = available_banks[bank_name].find_user(login, password)
         return my_account
 
-
+    """@staticmethod
+    def run():
+        available_banks = {"sber": Sber}
+        while True:
+            print("Do you want to log in or register?")
+            ans = input("Write 'log_in' or 'register': ")
+            if ans == "log_in":
+                my_account = WorkingSpace.login_system(available_banks)
+                if my_account in EX_CODE_MESSAGES.keys():
+                    print(EX_CODE_MESSAGES[my_account])
+                    continue
+                else:
+                    print("You have successfully logged in!")
+                    WorkingSpace.working_space(my_account)
+            elif ans == "register":
+                my_account = WorkingSpace.registration_system(available_banks)
+                WorkingSpace.working_space(my_account)
+            else:
+                print("Unavailable command")
+    """
     @staticmethod
     def register(user_info):
         available_banks = {"sber": Sber}
@@ -155,8 +174,8 @@ class WorkingSpace:
         available_banks = {"sber": Sber}
         while True:
             my_account = WorkingSpace.login_system(available_banks)
-            if my_account in ex_code_dct.keys():
-                print(ex_code_dct[my_account])
+            if my_account in EX_CODE_MESSAGES.keys():
+                print(EX_CODE_MESSAGES[my_account])
                 continue
             else:
                 print("You have successfully logged in!")

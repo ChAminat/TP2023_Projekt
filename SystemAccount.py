@@ -1,4 +1,5 @@
 import uuid
+from ex_info import INCORRECT_PASSWORD_ERROR
 
 
 class Client:
@@ -33,13 +34,15 @@ class UserInfo:
 
 class SystemAccount:
     __password = ""
+    __login = ""
     MyAccountList = {}
     UserID = str(uuid.uuid4())
 
-    def __init__(self, client, bank, password):
+    def __init__(self, client, bank, login, password):
         self.user = UserInfo(client)
         self.bank = bank
         self.__password = password
+        self.__login = login
 
     def edit_sys_account(self, address, passport_data):
         self.user.userAddress = address
@@ -48,7 +51,7 @@ class SystemAccount:
     def check_password(self, password):
         if password == self.__password:
             return True
-        return False  # your password is incorrect
+        return INCORRECT_PASSWORD_ERROR  # your password is incorrect
 
     def open_new_account(self, t_type, start_sum=0):
         new_acc = self.bank.create_account(self, t_type, start_sum)

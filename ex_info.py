@@ -1,15 +1,30 @@
-ex_code_dct = {
-    101: "incorrect password",
-    102: "user not found",
-    103: "login is already existed",
-    111: "unavailable account number",
-    112: "amount should be upper than 0",
-    113: "unavailable account type",
-    301: "insufficient funds to withdraw",
-    302: "insufficient funds for the transfer",
-    311: "validity_period is not finished",
-    312: "withdrawal limit exceeded",
-    412: "limited account. transfer limit exceeded",
-    413: "limited account. withdraw limit exceeded",
-    404: "non-existent account id"
+INCORRECT_PASSWORD_ERROR = 101
+USER_NOT_FOUND_ERROR = 102
+EXISTED_LOGIN_ERROR = 103
+ACCOUNT_NUMBER_ERROR = 111
+ZERO_OPERATION_ERROR = 112
+INCORRECT_ACCOUNT_TYPE_ERROR = 113
+INSUFFICIENT_FUND_WITHDRAW_ERROR = 301
+INSUFFICIENT_FUND_TRANSFER_ERROR = 302
+VALIDITY_PERIOD_ERROR = 311
+WITHDEAWAL_LIMIT_ERROR = 312
+LIMITED_ACCOUNT_TRANSFER_ERROR = 412
+LIMITED_ACCOUNT_WITHDRAW_ERROR = 413
+INCORRECT_ACCOUNT_ID_ERROR = 404
+
+
+EX_CODE_MESSAGES = {
+    INCORRECT_PASSWORD_ERROR: "incorrect password",
+    USER_NOT_FOUND_ERROR: "user not found",
+    EXISTED_LOGIN_ERROR: "login is already existed",
+    ACCOUNT_NUMBER_ERROR: "unavailable account number",
+    ZERO_OPERATION_ERROR: "amount should be upper than 0",
+    INCORRECT_ACCOUNT_TYPE_ERROR: "unavailable account type",
+    INSUFFICIENT_FUND_WITHDRAW_ERROR: "insufficient funds to withdraw",
+    INSUFFICIENT_FUND_TRANSFER_ERROR: "insufficient funds for the transfer",
+    VALIDITY_PERIOD_ERROR: "validity_period is not finished",
+    WITHDEAWAL_LIMIT_ERROR: "withdrawal limit exceeded",
+    LIMITED_ACCOUNT_TRANSFER_ERROR: "limited account. transfer limit exceeded",
+    LIMITED_ACCOUNT_WITHDRAW_ERROR: "limited account. withdraw limit exceeded",
+    INCORRECT_ACCOUNT_ID_ERROR: "non-existent account id"
     }
