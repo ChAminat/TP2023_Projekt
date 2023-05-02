@@ -1,4 +1,6 @@
 import uuid
+from ex_info import INCORRECT_PASSWORD_ERROR
+
 
 class Client:
     def __init__(self, name, surname, address='', passport=''):
@@ -14,16 +16,16 @@ class UserInfo:
 
     def userName(self):
         return self.client.user_name
-    
+
     def userSurname(self):
         return self.client.user_surname
-    
+
     def userAddress(self):
         return self.client.address
-    
+
     def userPassport(self):
         return self.client.passport
-    
+
     def check_status(self):
         if self.client.address.split() and self.client.passport.split():
             return True
@@ -49,7 +51,7 @@ class SystemAccount:
     def check_password(self, password):
         if password == self.__password:
             return True
-        return 101 #your password is incorrect
+        return INCORRECT_PASSWORD_ERROR  # your password is incorrect
 
     def open_new_account(self, t_type, start_sum=0):
         new_acc = self.bank.create_account(self, t_type, start_sum)
