@@ -1,4 +1,5 @@
 import uuid
+from ex_info import INCORRECT_PASSWORD_ERROR
 
 
 class Client:
@@ -50,7 +51,7 @@ class SystemAccount:
     def check_password(self, password):
         if password == self.__password:
             return True
-        return 101  # your password is incorrect
+        return INCORRECT_PASSWORD_ERROR  # your password is incorrect
 
     def open_new_account(self, t_type, start_sum=0):
         new_acc = self.bank.create_account(self, t_type, start_sum)

@@ -1,3 +1,6 @@
+from ex_info import USER_NOT_FOUND_ERROR, INCORRECT_PASSWORD_ERROR, ACCOUNT_NUMBER_ERROR, EXISTED_LOGIN_ERROR
+
+
 class AccountStorage:
     __accounts = {}
 
@@ -16,7 +19,7 @@ class AccountStorage:
     def close(self, id):
         cl_acc = self.__accounts.find(id)
         if cl_acc == None:
-            return 111  # unavailable account number
+            return ACCOUNT_NUMBER_ERROR  # unavailable account number
         del self.__accounts[id]
         return True
 
@@ -44,11 +47,11 @@ class UserStorage:
         if login in self.__users.keys():
             if password == self.__users[login][0]:
                 return self.__users[login][1]  # вернуть клсс my_account
-            return 101
-        return 102
+            return INCORRECT_PASSWORD_ERROR
+        return USER_NOT_FOUND_ERROR
 
     def add_new_user(self, login, password, sys_account):
         if login in self.__users.keys():
-            return 103
+            return EXISTED_LOGIN_ERROR
         self.__users[login] = [password, sys_account]  # изменить принцип добавления
         return True
