@@ -186,7 +186,6 @@ class WorkingSpace:
     """
     @staticmethod
     def register(user_info):
-        available_banks = {"sber": Sber}
         while True:
             my_account = WorkingSpace.registration_system(user_info)
             return my_account
