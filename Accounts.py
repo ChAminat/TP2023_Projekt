@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime, timedelta
 from ex_info import EX_CODE_MESSAGES, INSUFFICIENT_FUND_WITHDRAW_ERROR
 from ex_info import INSUFFICIENT_FUND_TRANSFER_ERROR, VALIDITY_PERIOD_ERROR, WITHDEAWAL_LIMIT_ERROR
 
@@ -44,13 +44,13 @@ class Deposit(Account):
 
     def withdraw(self, amount):
         now_date = date.today()
-        if now_date < self.sdate + self.validity_period:
+        if now_date < self.sdate + timedelta(days=self.validity_period):
             return VALIDITY_PERIOD_ERROR  # validity_period is not finished
         return super().withdraw(amount)
 
     def transfer(self, amount, recip_acc):
         now_date = date.today()
-        if now_date < self.sdate + self.validity_period:
+        if now_date < self.sdate + timedelta(days=self.validity_period):
             return VALIDITY_PERIOD_ERROR  # validity_period is not finished
         return super().transfer(amount, recip_acc)
 

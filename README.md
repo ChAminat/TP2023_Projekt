@@ -11,6 +11,8 @@
 - to make top up - ___top_up___
 - to make withdraw - ___withdraw___
 - to close account - ___close_account___
+- update your address and passport info - ___update_my_info___
+- show your user info - ___show_my_info___
 
 ## Web interface
 ### ___commands for bot working:___

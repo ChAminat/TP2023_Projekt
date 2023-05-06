@@ -1,14 +1,15 @@
 from SystemAccount import Client, SystemAccount
-from Banks import Sber
 from ex_info import EX_CODE_MESSAGES, ACCOUNT_NUMBER_ERROR, ZERO_OPERATION_ERROR, INCORRECT_ACCOUNT_TYPE_ERROR
+from ex_banks import available_banks
+
 
 class WorkingSpace:
     @staticmethod
-    def show_account(my_account):
-        lst = my_account.MyAccountList
+    def show_account(my_account): # changes
+        lst = my_account.show_user_accounts()
         if not lst:
             return ("You have no accounts yet")
-        ans = [f"id: {i}    type: {lst[i].ac_type}    balance: {lst[i].balance}" for i in lst]
+        ans = [f"id: {i}    type: {lst[i].ac_type}    balance: {lst[i].balance}" for i in lst.keys()]
         return '\n'.join(ans)
 
     @staticmethod
@@ -58,6 +59,18 @@ class WorkingSpace:
             my_account.close_account(account_id)
             return (f"Now account {account_id} is dead")
         return (ACCOUNT_NUMBER_ERROR)
+    
+    @staticmethod
+    def update_my_info(my_account): #new_func
+        new_address, new_passport = WorkingSpace.get_add_user_info()
+        my_account.update_my_info(new_address, new_passport)
+        return True
+
+    @staticmethod
+    def show_my_info(my_account): #new_fUnc
+        dct = my_account.show_my_info()
+        ans = [f"{i}: {dct[i]}" for i in dct.keys()]
+        return '\n'.join(ans)
 
     @staticmethod
     def working_space(my_account, command, account_id="", to_account_id="",
@@ -93,6 +106,10 @@ class WorkingSpace:
             elif command == "close_account":
                 ex_code = WorkingSpace.close_account(my_account=my_account,
                                                      id=account_id)
+            elif command == "update_my_info": # changes
+                ex_code = WorkingSpace.update_my_info(my_account)
+            elif command == "show_my_info": # changes
+                ex_code = WorkingSpace.show_my_info(my_account)
             return ex_code if not ex_code in EX_CODE_MESSAGES.keys() else EX_CODE_MESSAGES[ex_code]
 
     @staticmethod
@@ -114,7 +131,7 @@ class WorkingSpace:
         return address, passport
 
     @staticmethod
-    def get_reg_bank_info(available_banks, type, user_info):
+    def get_reg_bank_info(type, user_info):
         print("What bank would you like to be " + ("registered in?" if type == 0 else "logged in?"))
         while True:
             bank_name = user_info[6]
@@ -124,32 +141,37 @@ class WorkingSpace:
                 return bank_name.lower()
 
     @staticmethod
-    def registration_system(available_banks, user_info):
+    def registration_system(user_info):
         name, surname = WorkingSpace.get_mand_user_info(0, user_info)
         address, passport = WorkingSpace.get_add_user_info(user_info)
         client = Client(name, surname, address, passport)
         bank_name = WorkingSpace.get_reg_bank_info(available_banks, 0)
         login, password = WorkingSpace.get_mand_user_info(1, user_info)
         my_account = SystemAccount(client, available_banks[bank_name], login, password)
-        available_banks[bank_name].add_new_user(login, password, my_account)
+        operatin = available_banks[bank_name].add_new_user(login, password, my_account)
+        while operation in EX_CODE_MESSAGES.keys():   # changes
+            print(EX_CODE_MESSAGES[operation])
+            login, password = WorkingSpace.get_mand_user_info(1)
+            my_account = SystemAccount(client, available_banks[bank_name], login, password)
+            operation = available_banks[bank_name].add_new_user(login, password, my_account)
+        
         print(f"Congratulations, you are registered in {bank_name}!")
         return my_account
 
     @staticmethod
-    def login_system(available_banks):
-        bank_name = WorkingSpace.get_reg_bank_info(available_banks, 1)
+    def login_system():
+        bank_name = WorkingSpace.get_reg_bank_info(1)
         login, password = WorkingSpace.get_mand_user_info(1)
         my_account = available_banks[bank_name].find_user(login, password)
         return my_account
 
     """@staticmethod
     def run():
-        available_banks = {"sber": Sber}
         while True:
             print("Do you want to log in or register?")
             ans = input("Write 'log_in' or 'register': ")
             if ans == "log_in":
-                my_account = WorkingSpace.login_system(available_banks)
+                my_account = WorkingSpace.login_system()
                 if my_account in EX_CODE_MESSAGES.keys():
                     print(EX_CODE_MESSAGES[my_account])
                     continue
@@ -157,7 +179,7 @@ class WorkingSpace:
                     print("You have successfully logged in!")
                     WorkingSpace.working_space(my_account)
             elif ans == "register":
-                my_account = WorkingSpace.registration_system(available_banks)
+                my_account = WorkingSpace.registration_system()
                 WorkingSpace.working_space(my_account)
             else:
                 print("Unavailable command")
@@ -166,14 +188,13 @@ class WorkingSpace:
     def register(user_info):
         available_banks = {"sber": Sber}
         while True:
-            my_account = WorkingSpace.registration_system(available_banks, user_info)
+            my_account = WorkingSpace.registration_system(user_info)
             return my_account
 
     @staticmethod
     def log_in(user_info):
-        available_banks = {"sber": Sber}
         while True:
-            my_account = WorkingSpace.login_system(available_banks)
+            my_account = WorkingSpace.login_system()
             if my_account in EX_CODE_MESSAGES.keys():
                 print(EX_CODE_MESSAGES[my_account])
                 continue

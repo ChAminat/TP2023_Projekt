@@ -34,7 +34,7 @@ class UserInfo:
 
 class SystemAccount:
     __password = ""
-    __login = ""
+    login = ""
     MyAccountList = {}
     UserID = str(uuid.uuid4())
 
@@ -42,7 +42,7 @@ class SystemAccount:
         self.user = UserInfo(client)
         self.bank = bank
         self.__password = password
-        self.__login = login
+        self.login = login
 
     def edit_sys_account(self, address, passport_data):
         self.user.userAddress = address
@@ -62,6 +62,9 @@ class SystemAccount:
         self.bank.close_account(account_id)
         del self.MyAccountList[account_id]
 
+    def show_user_accounts(self):
+        return self.bank.show_accounts(self.UserID)
+
     def transfer(self, amount, from_acc_id, to_acc_id):
         return self.bank.make_transfer(amount, from_acc_id, to_acc_id, self.user.check_status())
 
@@ -72,4 +75,15 @@ class SystemAccount:
         return self.bank.make_withdraw(amount, acc_id, self.user.check_status())
 
     def balance(self, acc_id):
-        return self.MyAccountList[acc_id].check_balance()
+        return self.bank.check_balance(acc_id)
+
+    def update_my_info(self, address, passport):
+        self.user.client.address = address
+        self.user.client.passport = passport
+        self.bank.update_user_info(self)
+
+    def show_my_info(self):
+        dct_info = {"UserId": self.UserID, "Login": self.login,
+                    "Name": self.user.userName(), "Surname": self.user.userSurname(),
+                    "Passport": self.user.userPassport(), "Address": self.user.userAddress()}
+        return dct_info

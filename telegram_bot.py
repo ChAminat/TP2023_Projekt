@@ -1,7 +1,7 @@
 import telebot
 from telebot import types  # кнопки
 from Interface import WorkingSpace
-from Banks import Sber
+from ex_banks import Sber # changes
 
 from SystemAccount import Client
 
