@@ -188,6 +188,7 @@ class WorkingSpace:
 
     @staticmethod
     def log_in(user_info):
+        '''
         while True:
             my_account = WorkingSpace.login_system()
             if my_account in EX_CODE_MESSAGES.keys():
@@ -196,3 +197,7 @@ class WorkingSpace:
             else:
                 print("You have successfully logged in!")
                 WorkingSpace.working_space(my_account)
+        '''
+        while True:
+            my_account = WorkingSpace.login_system()
+            return my_account
