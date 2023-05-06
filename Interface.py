@@ -145,16 +145,12 @@ class WorkingSpace:
         name, surname = WorkingSpace.get_mand_user_info(0, user_info)
         address, passport = WorkingSpace.get_add_user_info(user_info)
         client = Client(name, surname, address, passport)
-        bank_name = WorkingSpace.get_reg_bank_info(available_banks, 0)
+        bank_name = WorkingSpace.get_reg_bank_info(0, user_info)
         login, password = WorkingSpace.get_mand_user_info(1, user_info)
         my_account = SystemAccount(client, available_banks[bank_name], login, password)
-        operatin = available_banks[bank_name].add_new_user(login, password, my_account)
-        while operation in EX_CODE_MESSAGES.keys():   # changes
-            print(EX_CODE_MESSAGES[operation])
-            login, password = WorkingSpace.get_mand_user_info(1)
-            my_account = SystemAccount(client, available_banks[bank_name], login, password)
-            operation = available_banks[bank_name].add_new_user(login, password, my_account)
-        
+        operation = available_banks[bank_name].add_new_user(login, password, my_account)
+        if operation in EX_CODE_MESSAGES.keys():   # changes
+            return operation
         print(f"Congratulations, you are registered in {bank_name}!")
         return my_account
 
