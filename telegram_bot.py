@@ -1,7 +1,7 @@
 import telebot
 from telebot import types  # кнопки
 from Interface import WorkingSpace
-from token import TOKEN_BOT
+from my_token import TOKEN_BOT
 
 bot = telebot.TeleBot(TOKEN_BOT)
 
