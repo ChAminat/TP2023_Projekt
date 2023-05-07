@@ -1,26 +1,20 @@
 import telebot
 from telebot import types  # кнопки
 from Interface import WorkingSpace
-from ex_banks import Sber # changes
+from token import TOKEN_BOT
 
-from SystemAccount import Client
+bot = telebot.TeleBot(TOKEN_BOT)
 
-bot = telebot.TeleBot('6002259765:AAF4bV8sh2FPOyka9NT2VYBdvxhOiQGWXiE')
-
+user_ans = {"name": "", "surname": "", "address": "",
+            "passport": "", "bank": "", "login": "",
+            "password": "", "operation": "", "type": "",
+            "id": "", "to_id": "", "sum": "", "my_account": None}
 
 class TelegramBot:
-    """user_messages = {"name":"", "surname":"",
-                 "address": "", "passport":"",
-                 "login":"", "password":"", "bank": ""}"""
-    user_messages = []
-    myAccount = ""
-    id = ""
-    to_acc_id = ""
-    sum=""
 
-    def __init__(self, bot):
+    def __init__(self, bot=bot):
         self.bot = bot
-        self.bot.polling(none_stop=True, interval=0)
+        self.bot.polling(none_stop=True, interval=3)
 
     @staticmethod
     def markup(message, bot_message, user_message=""):
@@ -33,155 +27,182 @@ class TelegramBot:
 
     @bot.message_handler(commands=['start'])
     def start(message):
-        TelegramBot.markup(message=message, bot_message="👋 Hi!\n"
-                            "Do you want to log in or register?\n",
-                            user_message=["/register", "/log_in"])
+        bot.send_message(chat_id=message.chat.id,
+                         text="👋 Hi!\n"
+                            "Follow the instructions further.\n"
+                            "Please do not flood the chat and\n"
+                            "write answers clearly and each time with a new message!\n"
+                            "So, let's begin...\n"
+                            "Do you want to /log_in or /register?\n")
 
-        @bot.message_handler(commands=['register'])
-        def register(message):
-            """@bot.message_handler(func=lambda message: True)
-            def echo_message(message):
-                TelegramBot.user_messages.append(message.text)"""
+    @bot.message_handler(commands=['help'])
+    def help(message):
+        bot.send_message(chat_id=message.chat.id,
+                         text="At the start, you select two commands /register if you are not registered in the system or /log_in if you are registered in any bank.\n"
+                    "In the first case, you need to further enter information about yourself by clicking the command\n"
+                    "/change_information_user - enter the following 4 messages separated by a space (or if you are already registered, but want to add information or change it):\n"
+                    "first name: your first name\n"
+                    "last name: your last name\n"
+                    "address: your address\n"
+                    "passport: your passport number\n"
+                    "/choice_bank - select bank from the available (enter its name) for example:\n"
+                    "bank: bank name\n"
+                    "/username - enter the following 2 messages separated by a space to register in the system or log in (after the command /log_in):\n"
+                    "login: your login\n"
+                    "password: your password\n"
+                    "In the second case, to log in, select which bank you are registered with\n"
+                    "and enter your username and password\n")
 
-            TelegramBot.markup(message=message,
-                               bot_message="Please, introduce yourself\n"
-                               "enter the following information\n",
-                               user_message=[])
-            TelegramBot.markup(message=message,
-                               bot_message="name\n"
-                               "surname\n",
-                               user_message=[])
-            TelegramBot.markup(message=message,
-                               bot_message=
-                            "Please, enter the following data(address and passport)\n"
-                            " or skip (print No twice)\n"
-                            "address\n"
-                            "passport\n",
-                               user_message=[])
-            TelegramBot.markup(message=message,
-                               bot_message=
-                               "What bank would you like to be registered in?",
-                               user_message=[])
-            TelegramBot.markup(message=message,
-                               bot_message=
-                               "Enter login\n"
-                               "password\n",
-                               user_message=[])
+    @bot.message_handler(commands=['register'])
+    def register(message):
+        user_ans["operation"] = "register"
+        bot.send_message(chat_id=message.chat.id,
+                         text="Use the following commands in turn (you can read more about them in /help):\n"
+                              "/change_information_user\n"
+                              "/choice_bank\n"
+                              "/username\n")
 
-            TelegramBot.myAccount = WorkingSpace.register(user_info=TelegramBot.user_messages)
-            TelegramBot.markup(message=message,
-                               bot_message=
-                               f"Congratulations, you are registered in {TelegramBot.user_messages[6]}!",
-                               user_message=[])
+    @bot.message_handler(commands=['log_in'])  # доработать
+    def log_in(message):
+        user_ans["operation"] = "log_in"
+        bot.send_message(chat_id=message.chat.id,
+                         text="Use the following commands in turn (you can read more about them in /help):\n"
+                              "/choice_bank\n"
+                              "/username\n")
 
-            TelegramBot.markup(message=message,
-                               bot_message="What do you want to do next?\n",
-                               user_message=["show_account", "create_account",
-                                             "check_balance", "withdraw",
-                                             "top_up", "transfer",
-                                             "close_account"])
+    @bot.message_handler(commands=['change_information_user'])
+    def change_info(message):
+        bot.send_message(chat_id=message.chat.id,
+                         text="Please, introduce yourself\n"
+                              "Enter the following data(address and passport)\n"
+                              "or skip (print No twice)\n")
 
-            @bot.message_handler(content_types=['text'])
-            def get_text_messages(message):
+    @bot.message_handler(commands=['choice_bank'])
+    def choice_bank(message):
+        bot.send_message(chat_id=message.chat.id,
+                         text="What bank would you like to be registered in?")
 
-                if message.text == "show_account":
-                    TelegramBot.markup(message=message,
-                                       bot_message=WorkingSpace.working_space(
-                                                my_account=TelegramBot.myAccount,
-                                                command=message.text),
-                                       user_message=[])
+    @bot.message_handler(commands=['username'])
+    def enter_username(message):
+        bot.send_message(chat_id=message.chat.id,
+                         text="Perfectly!"
+                              "To log in, enter your username and password")
 
-                elif message.text == "create_account":
-                    TelegramBot.markup(message=message,
-                                       bot_message="Select the account type: debit, credit, deposit",
-                                       user_message=["debit", "credit", "deposit"])
+    @bot.message_handler(commands=['show_account'])
+    def show_acc(message):
+        user_ans["operation"] = "show_account"
+        bot.send_message(chat_id=message.chat.id,
+                         text=WorkingSpace.working_space(user_info=user_ans))
 
+    @bot.message_handler(commands=['create_credit_account'])
+    def create_credit_account(message):
+        user_ans["operation"] = "create_account"
+        user_ans["type"] = "credit"
+        bot.send_message(chat_id=message.chat.id,
+                         text="Enter sum: <sum>  for create credit account")
 
-                elif message.text == "debit":
-                    TelegramBot.markup(message=message,
-                                       bot_message=WorkingSpace.working_space(
-                                           my_account=TelegramBot.myAccount,
-                                           command="create_account",
-                                           type=message.text),
-                                       user_message=[])
-                elif message.text == "deposit":
-                    TelegramBot.markup(message=message,
-                                       bot_message=WorkingSpace.working_space(
-                                           my_account=TelegramBot.myAccount,
-                                           command="create_account",
-                                           type=message.text),
-                                       user_message=[])
+    @bot.message_handler(commands=['create_debit_account'])
+    def create_debit_account(message):
+        user_ans["operation"] = "create_account"
+        user_ans["type"] = "debit"
+        bot.send_message(chat_id=message.chat.id,
+                         text=WorkingSpace.working_space(user_info=user_ans))
 
-                elif message.text == "credit":
-                    TelegramBot.markup(message=message,
-                                       bot_message=WorkingSpace.working_space(
-                                           my_account=TelegramBot.myAccount,
-                                           command="create_account",
-                                           type=message.text,
-                                           sum=""),#добавить для кредитного счета сумму
-                                       user_message=[])
+    @bot.message_handler(commands=['create_deposit_account'])
+    def create_deposit_account(message):
+        user_ans["operation"] = "create_account"
+        user_ans["type"] = "deposit"
+        bot.send_message(chat_id=message.chat.id,
+                         text=WorkingSpace.working_space(user_info=user_ans))
 
-                elif message.text == "check_balance":#дописать запрос id
-                    TelegramBot.markup(message=message,
-                                       bot_message=WorkingSpace.working_space(
-                                           my_account=TelegramBot.myAccount,
-                                           command=message.text,
-                                           account_id=TelegramBot.id),
-                                       user_message=[])
+    @ bot.message_handler(commands=['check_balance'])
+    def check_balance(message):
+        user_ans["operation"] = "check_balance"
+        bot.send_message(chat_id=message.chat.id,
+                         text="Enter id: <id_your_account>")
 
-                elif message.text[:3] == "id ":  # input id account
-                    TelegramBot.id = message.text[3:]
+    @bot.message_handler(commands=['withdraw', 'top_up', 'transfer'])
+    def withdraw(message):
+        user_ans["operation"] = "withdraw"
+        bot.send_message(chat_id=message.chat.id,
+                         text="Enter sum: <sum>\n")
 
-                elif message.text[:8] == "to_acc ":
-                    TelegramBot.to_acc_id = message.text[8:]
+    @bot.message_handler(commands=['close_account'])
+    def close_account(message):
+        user_ans["operation"] = "close_account"
+        bot.send_message(chat_id=message.chat.id,
+                         text="Enter id: <id>\n")
 
-                elif message.text[:4] == "sum ":  # input id account
-                    TelegramBot.id = message.text[4:]
+    @bot.message_handler(commands=["show_my_info"])
+    def show_my_info(message):
+        user_ans["operation"] = "show_my_info"
+        bot.send_message(chat_id=message.chat.id,
+                         text=WorkingSpace.working_space(user_info=user_ans))
 
-                elif message.text == "withdraw":
-                    TelegramBot.markup(message=message,
-                                       bot_message=WorkingSpace.working_space(
-                                           my_account=TelegramBot.myAccount,
-                                           command=message.text,
-                                           type=message.text,
-                                           account_id=TelegramBot.id,
-                                           sum=TelegramBot.sum),
-                                       user_message=[])
+    @bot.message_handler(content_types=['text'])
+    def get_text_messages(message):
+        if message.text[:6] == "name: ":
+            user_ans["name"] = message.text[6:]
+        elif message.text[:9] == "surname: ":
+            user_ans["surname"] = message.text[9:]
+        elif message.text[:9] == "address: ":
+            if message.text[9:] != "No":
+                user_ans["address"] = message.text[9:]
+            else:
+                user_ans["address"] = ""
+        elif message.text[:10] == "passport: ":
+            if message.text[10:] != "No":
+                user_ans["passport"] = message.text[10:]
+            else:
+                user_ans["passport"] = ""
+        elif message.text[:6] == "bank: ":
+            user_ans["bank"] = message.text[6:].lower()
+        elif message.text[:7] == "login: ":
+            user_ans["login"] = message.text[7:]
+        elif message.text[:10] == "password: ":
+            user_ans["password"] = message.text[10:]
+            error = 0
+            if user_ans['operation'] == "register":
+                error, user_ans["my_account"] = WorkingSpace.register(user_info=user_ans)
+            elif user_ans['operation'] == "log_in":
+                error, user_ans["my_account"] = WorkingSpace.log_in(user_info=user_ans)
+            if error:
+                bot.send_message(chat_id=message.chat.id,
+                                 text=f"Error: {user_ans['my_account']}\n"
+                                      "Go back and repeat the steps again")
+            else:
+                TelegramBot.markup(message=message,
+                                   bot_message="Select the following buttons on the keyboard \n"
+                                               "(read the description in /help)",
+                                   user_message=["/show_account", "/create_debit_account",
+                                                 "/create_deposit_account", "/create_credit_account",
+                                                 "/check_balance", "/withdraw", "/top_up", "/transfer",
+                                                 "/close_account", "/show_my_info"])
+        elif message.text[:5] == "sum: ":
+            user_ans["sum"] = message.text[5:]
+            if user_ans["operation"] == "create_account":
+                bot.send_message(chat_id=message.chat.id,
+                                 text=WorkingSpace.working_space(user_info=user_ans))
+            elif user_ans["operation"] == "withdraw" or "top_up" or "transfer":
+                bot.send_message(chat_id=message.chat.id,
+                                 text="Enter id: <id_your_account>\n")
 
-                elif message.text == "top_up ":
-                    TelegramBot.markup(message=message,
-                                       bot_message=WorkingSpace.working_space(
-                                           my_account=TelegramBot.myAccount,
-                                           command=message.text,
-                                           type=message.text,
-                                           account_id=TelegramBot.id,
-                                           sum=TelegramBot.sum),
-                                       user_message=[])
+        elif message.text[:4] == "id: ":
+            user_ans["id"] = message.text[4:]
+            if user_ans["operation"] == "check_balance":
+                bot.send_message(chat_id=message.chat.id,
+                                 text=WorkingSpace.working_space(user_info=user_ans))
+            elif user_ans["operation"] == "withdraw" or "top_up":
+                bot.send_message(chat_id=message.chat.id,
+                                 text=WorkingSpace.working_space(user_info=user_ans))
+            elif user_ans["operation"] == "transfer":
+                bot.send_message(chat_id=message.chat.id,
+                                 text="Enter to_acc: <to_acc>")
+            elif user_ans["operation"] == "close_account":
+                bot.send_message(chat_id=message.chat.id,
+                                 text=WorkingSpace.working_space(user_info=user_ans))
+        elif message.text[:7] == "to_id: ":
+            user_ans["to_id"] = message.text[7:]
+            bot.send_message(chat_id=message.chat.id,
+                             text=WorkingSpace.working_space(user_info=user_ans))
 
-                elif message.text[:10] == "transfer ":
-                    TelegramBot.markup(message=message,
-                                       bot_message=WorkingSpace.working_space(
-                                           my_account=TelegramBot.myAccount,
-                                           command=message.text,
-                                           type=message.text,
-                                           account_id=TelegramBot.id,
-                                           to_account_id=TelegramBot.to_acc_id,
-                                           sum=TelegramBot.sum),
-                                       user_message=[])
-
-                elif message.text == "close_account":
-                    TelegramBot.markup(message=message,
-                                       bot_message=WorkingSpace.working_space(
-                                           my_account=TelegramBot.myAccount,
-                                           command=message.text,
-                                           account_id=TelegramBot.id),
-                                       user_message=[])
-                else:
-                    TelegramBot.user_messages.append(message.text)
-
-
-        @bot.message_handler(commands=['log_in']) #доработать
-        def log_in(message):
-            TelegramBot.markup(message=message,
-                               bot_message="",
-                               user_message=[])
