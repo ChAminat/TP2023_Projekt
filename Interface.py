@@ -35,6 +35,7 @@ class WorkingSpace:
 
     @staticmethod
     def stonks(my_account, type, sum, id):
+        print(type)
         amount = float(sum)
         acc_id = int(id)
         if acc_id in my_account.MyAccountList:
@@ -146,6 +147,8 @@ class WorkingSpace:
         client = Client(name, surname, address, passport)
         bank_name = WorkingSpace.get_reg_bank_info(0, user_info)
         login, password = WorkingSpace.get_mand_user_info(1, user_info)
+        if bank_name not in available_banks.keys():
+            return 1, bank_name
         my_account = SystemAccount(client, available_banks[bank_name], login, password)
         operation = available_banks[bank_name].add_new_user(login, password, my_account)
         if operation in EX_CODE_MESSAGES.keys():  # changes
@@ -157,8 +160,10 @@ class WorkingSpace:
     def login_system(user_info):
         bank_name = WorkingSpace.get_reg_bank_info(1, user_info)
         login, password = WorkingSpace.get_mand_user_info(1, user_info)
-        my_account = available_banks[bank_name].find_user(login, password)
         error = 0
+        if bank_name not in available_banks.keys():
+            error = 1
+        my_account = available_banks[bank_name].find_user(login, password)
         if my_account in EX_CODE_MESSAGES.keys():  # changes
             error = 1
         return error, my_account
