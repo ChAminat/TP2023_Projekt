@@ -14,7 +14,7 @@ class TelegramBot:
 
     def __init__(self, bot=bot):
         self.bot = bot
-        self.bot.polling(none_stop=True, interval=3)
+        self.bot.polling(none_stop=True, interval=0)
 
     @staticmethod
     def markup(message, bot_message, user_message=""):
@@ -121,9 +121,21 @@ class TelegramBot:
         bot.send_message(chat_id=message.chat.id,
                          text="Enter id: <id_your_account>")
 
-    @bot.message_handler(commands=['withdraw', 'top_up', 'transfer'])
+    @bot.message_handler(commands=['withdraw'])
     def withdraw(message):
         user_ans["operation"] = "withdraw"
+        bot.send_message(chat_id=message.chat.id,
+                         text="Enter sum: <sum>\n")
+
+    @bot.message_handler(commands=['top_up'])
+    def withdraw(message):
+        user_ans["operation"] = "top_up"
+        bot.send_message(chat_id=message.chat.id,
+                         text="Enter sum: <sum>\n")
+
+    @bot.message_handler(commands=['transfer'])
+    def withdraw(message):
+        user_ans["operation"] = "transfer"
         bot.send_message(chat_id=message.chat.id,
                          text="Enter sum: <sum>\n")
 
@@ -139,32 +151,47 @@ class TelegramBot:
         bot.send_message(chat_id=message.chat.id,
                          text=WorkingSpace.working_space(user_info=user_ans))
 
+    @bot.message_handler(commands=["exit"])
+    def show_my_info(message):
+        user_ans["name"] = ""
+        user_ans["surname"] = ""
+        user_ans["address"] = ""
+        user_ans["passport"] = ""
+        user_ans["operation"] = ""
+        user_ans["sum"] = ""
+        user_ans["id"] = ""
+        user_ans["to_id"] = ""
+        user_ans["my_account"] =  None
+        bot.send_message(chat_id=message.chat.id,
+                         text="You are logged out.\n"
+                              "Press /start to get started")
+
     @bot.message_handler(content_types=['text'])
     def get_text_messages(message):
         if message.text[:6] == "name: ":
             user_ans["name"] = message.text[6:]
-        elif message.text[:9] == "surname: ":
+        if message.text[:9] == "surname: ":
             user_ans["surname"] = message.text[9:]
-        elif message.text[:9] == "address: ":
+        if message.text[:9] == "address: ":
             if message.text[9:] != "No":
                 user_ans["address"] = message.text[9:]
             else:
                 user_ans["address"] = ""
-        elif message.text[:10] == "passport: ":
+        if message.text[:10] == "passport: ":
             if message.text[10:] != "No":
                 user_ans["passport"] = message.text[10:]
             else:
                 user_ans["passport"] = ""
-        elif message.text[:6] == "bank: ":
+        if message.text[:6] == "bank: ":
             user_ans["bank"] = message.text[6:].lower()
-        elif message.text[:7] == "login: ":
+        if message.text[:7] == "login: ":
             user_ans["login"] = message.text[7:]
-        elif message.text[:10] == "password: ":
+        if message.text[:10] == "password: ":
             user_ans["password"] = message.text[10:]
             error = 0
             if user_ans['operation'] == "register":
                 error, user_ans["my_account"] = WorkingSpace.register(user_info=user_ans)
-            elif user_ans['operation'] == "log_in":
+            if user_ans['operation'] == "log_in":
                 error, user_ans["my_account"] = WorkingSpace.log_in(user_info=user_ans)
             if error:
                 bot.send_message(chat_id=message.chat.id,
@@ -177,31 +204,27 @@ class TelegramBot:
                                    user_message=["/show_account", "/create_debit_account",
                                                  "/create_deposit_account", "/create_credit_account",
                                                  "/check_balance", "/withdraw", "/top_up", "/transfer",
-                                                 "/close_account", "/show_my_info"])
-        elif message.text[:5] == "sum: ":
+                                                 "/close_account", "/show_my_info", "/exit"])
+        if message.text[:5] == "sum: ":
             user_ans["sum"] = message.text[5:]
             if user_ans["operation"] == "create_account":
                 bot.send_message(chat_id=message.chat.id,
                                  text=WorkingSpace.working_space(user_info=user_ans))
-            elif user_ans["operation"] == "withdraw" or "top_up" or "transfer":
+            elif user_ans["operation"] in ["withdraw", "top_up", "transfer"]:
                 bot.send_message(chat_id=message.chat.id,
                                  text="Enter id: <id_your_account>\n")
 
-        elif message.text[:4] == "id: ":
+        if message.text[:4] == "id: ":
+            bot.send_message(chat_id=message.chat.id,
+                             text=user_ans["operation"])
             user_ans["id"] = message.text[4:]
-            if user_ans["operation"] == "check_balance":
-                bot.send_message(chat_id=message.chat.id,
-                                 text=WorkingSpace.working_space(user_info=user_ans))
-            elif user_ans["operation"] == "withdraw" or "top_up":
+            if user_ans["operation"] in ["check_balance", "withdraw", "top_up", "close_account"]:
                 bot.send_message(chat_id=message.chat.id,
                                  text=WorkingSpace.working_space(user_info=user_ans))
             elif user_ans["operation"] == "transfer":
                 bot.send_message(chat_id=message.chat.id,
-                                 text="Enter to_acc: <to_acc>")
-            elif user_ans["operation"] == "close_account":
-                bot.send_message(chat_id=message.chat.id,
-                                 text=WorkingSpace.working_space(user_info=user_ans))
-        elif message.text[:7] == "to_id: ":
+                                 text="Enter to_id: <to_id>")
+        if message.text[:7] == "to_id: ":
             user_ans["to_id"] = message.text[7:]
             bot.send_message(chat_id=message.chat.id,
                              text=WorkingSpace.working_space(user_info=user_ans))
