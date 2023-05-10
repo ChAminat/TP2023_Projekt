@@ -1,9 +1,8 @@
-from Account import Debit, Credit, Deposit
+from Accounts import Debit, Credit, Deposit
 from Storages import AccountStorage, UserStorage, TransactionStorage
 from datetime import date
 import uuid
-from ex_info import ex_code_dct
-
+from ex_info import EX_CODE_MESSAGES, INCORRECT_ACCOUNT_ID_ERROR, LIMITED_ACCOUNT_WITHDRAW_ERROR
 
 class Transaction:
     def __init__(self, tr_id, sdate, t_type, details):
@@ -30,24 +29,30 @@ class Bank:
         self.__accounts = AccountStorage(self.name)
         self.__transactions = TransactionStorage(self.name)
         self.__users = UserStorage(self.name)
-    
+
     def find_user(self, login, password):
-        return self.__users.find(login, password)
+        user_account = self.__users.find(login, password)
+        if user_account not in EX_CODE_MESSAGES.keys():  # changes
+            user_account.bank = self
+            user_account.MyAccountList = self.__accounts.find_all(user_account.UserID)
+        return user_account
 
     def add_new_user(self, login, password, sys_account):
         return self.__users.add_new_user(login, password, sys_account)
 
     def make_transfer(self, amount, owner_acc_id, recip_acc_id, sys_acc_status):
         if not sys_acc_status and amount > self.limitations.trans_limit:
-            return 413 #limited account. transfer limit exceeded
+            return LIMITED_ACCOUNT_WITHDRAW_ERROR  # limited account. transfer limit exceeded
         acc_from = self.__accounts.find(owner_acc_id)
         acc_to = self.__accounts.find(recip_acc_id)
         if acc_from == None or acc_to == None:
-            return 404 #non-existent account id
+            return INCORRECT_ACCOUNT_ID_ERROR  # non-existent account id
         operation = acc_from.transfer(amount, acc_to)
-        if operation in ex_code_dct.keys(): #поставить сравнение с кодом исключения
+        if operation in EX_CODE_MESSAGES.keys():
             return operation
 
+        self.__accounts.update_account_info(acc_from)
+        self.__accounts.update_account_info(acc_to)
         t_id = uuid.uuid4().int
         details = {"amount": amount, "owner_acc_id": owner_acc_id, "recip_acc_id": recip_acc_id}
         sdate = date.today()
@@ -57,8 +62,9 @@ class Bank:
     def make_top_up(self, amount, owner_acc_id):
         acc_to = self.__accounts.find(owner_acc_id)
         if acc_to == None:
-            return 404 # non-existent account id
+            return INCORRECT_ACCOUNT_ID_ERROR  # non-existent account id
         acc_to.top_up(amount)
+        self.__accounts.update_account_info(acc_to)
         t_id = uuid.uuid4().int
         details = {"amount": amount, "owner_acc_id": owner_acc_id}
         sdate = date.today()
@@ -67,14 +73,15 @@ class Bank:
 
     def make_withdraw(self, amount, owner_acc_id, acc_status):
         if not acc_status and amount > self.limitations.withdraw_limit:
-            return 413 # limited account. withdraw limit exceeded
+            return LIMITED_ACCOUNT_WITHDRAW_ERROR  # limited account. withdraw limit exceeded
         acc_to = self.__accounts.find(owner_acc_id)
         if acc_to == None:
-            return 404 # non-existent account id
+            return INCORRECT_ACCOUNT_ID_ERROR  # non-existent account id
         operation = acc_to.withdraw(amount)
-        if operation in ex_code_dct.keys():
+        if operation in EX_CODE_MESSAGES.keys():
             return operation
-        
+
+        self.__accounts.update_account_info(acc_to)
         t_id = uuid.uuid4().int
         details = {"amount": amount, "owner_acc_id": owner_acc_id}
         sdate = date.today()
@@ -103,5 +110,14 @@ class Bank:
         operation = self.__accounts.close(account_id)
         return operation
 
+    def show_accounts(self, UserID):
+        return self.__accounts.find_all(UserID)
 
-Sber = Bank("Sber", "Moscow", commission=100, trans_limit=100, withdraw_limit=1000, credit_limit=1000, period=1)
+    def check_balance(self, acc_id):
+        acc = self.__accounts.find(acc_id)
+        if not acc in EX_CODE_MESSAGES.keys():
+            return acc.balance
+        return acc
+
+    def update_user_info(self, user_sys_acc):
+        self.__users.update_user_info(user_sys_acc)
